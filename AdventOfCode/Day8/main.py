@@ -5,32 +5,72 @@ def main(input):
       l = lines.rstrip()
       matrix.append([int(tree) for tree in l])
 
-  seen = set()
-  visible = 0
-  def dfs(r, c, d, org):
-    nonlocal visible
-    if (r == len(matrix) - 1 or c == len(matrix[0]) - 1 or r == 0 or c == 0) and org not in seen:
-      seen.add(org)
-      visible += 1
-      return 1
-    elif d == 0:
-      if matrix[r][c] > matrix[r-1][c]:dfs(r-1, c, 'up', (r,c))
-      if matrix[r][c] > matrix[r][c-1]:dfs(r, c-1, 'left', (r,c))
-      if matrix[r][c] > matrix[r+1][c]:dfs(r+1, c, 'down', (r,c))
-      if matrix[r][c] > matrix[r][c+1]:dfs(r, c+1, 'right', (r,c))
-    elif d == 'up' and matrix[org[0]][org[1]] > matrix[r-1][c] and org not in seen:
-      dfs(r-1, c, 'up', org)
-    elif r + 1 < len(matrix) and d == 'down' and matrix[org[0]][org[1]] > matrix[r+1][c] and org not in seen:
-      dfs(r+1, c, 'down', org)
-    elif c+1 < len(matrix[0]) and d == 'right' and matrix[org[0]][org[1]] > matrix[r][c+1] and org not in seen:
-      dfs(r, c+1, 'right', org)
-    elif d == 'left' and matrix[org[0]][org[1]] > matrix[r][c-1] and org not in seen:
-      dfs(r, c-1, 'left', org)
-
+  counts = {}
   for row in range(len(matrix)):
     for col in range(len(matrix[0])):
-      dfs(row, col, 0, (row, col))
-  return visible
+      org = (row, col)
+      counts[org] = list()
+      # UP
+      count = 1
+      while row >= 0:
+        if row == 0:
+          counts[org].append(count - 1)
+          break
+        row -= 1
+        if matrix[org[0]][org[1]] > matrix[row][col]:
+          count += 1
+        else:
+          counts[org].append(count)
+          break
+      # DOWN
+      row, col = org[0], org[1]
+      count = 1
+      while row <= len(matrix) - 1:
+        if row == len(matrix) - 1:
+          counts[org].append(count - 1)
+          break
+        row += 1
+        if matrix[org[0]][org[1]] > matrix[row][col]:
+          count += 1
+        else:
+          counts[org].append(count)
+          break
+      # LEFT
+      row, col = org[0], org[1]
+      count = 1
+      while col >= 0:
+        if col == 0:
+          counts[org].append(count - 1)
+          break
+        col -= 1
+        if matrix[org[0]][org[1]] > matrix[row][col]:
+          count += 1
+        else:
+          counts[org].append(count)
+          break
+      # RIGHT
+      row, col = org[0], org[1]
+      count = 1
+      while col <= len(matrix[0]) - 1:
+        if col == len(matrix[0]) - 1:
+          counts[org].append(count - 1)
+          break
+        col += 1
+        if matrix[org[0]][org[1]] > matrix[row][col]:
+          count += 1
+        else:
+          counts[org].append(count)
+          break
+
+  highestScore = 0
+  for _, value in counts.items():
+    score = 1
+    for v in value:
+      score *= v
+    if score > highestScore:
+      highestScore = score
+  return highestScore
+    
 
 if __name__ == '__main__':
-  print(main('input.txt'))
+  print(f'Highest score:', main('input.txt'))
