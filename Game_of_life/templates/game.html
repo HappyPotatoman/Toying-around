@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      background-color: #2B2D42;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      height: auto;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    
+    .description {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    
+    .controls {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 150px;
+    }
+
+    #grid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #2B2D42;
+      padding: 10px;
+      opacity: 0;
+      transition: opacity 1s ease;
+      height: auto;
+    }
+
+    .row {
+      display: flex;
+    }
+    
+    .cell {
+      width: 5px;
+      height: 5px;
+    }
+
+    .dead {
+      background-color: #2B2D42;
+    }
+
+    .alive {
+      background-color: #ffffff;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #ffffff;
+      color: #2B2D42;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #fffdfd;
+      color: #2B2D42;
+    }
+
+    input {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      color: #2B2D42;
+    }
+  </style>
+</head>
+<body>
+  <h1>Conway's Game of Life</h1>
+  <p class="description">A cellular automaton simulation</p>
+
+  <div class="controls">
+    Grid size: <input type="number" id="size" value="100"><br>
+    <button id="generate">Generate</button>
+  </div>
+  
+  <div id="grid"></div>
+  
+  <script>
+    var websocket = null;
+    var gridElement = document.getElementById('grid');
+
+    document.getElementById('generate').addEventListener('click', function() {
+      // Close existing WebSocket connection, if any
+      if (websocket !== null) {
+        websocket.close();
+      }
+
+      const size = document.getElementById('size').value;
+      websocket = new WebSocket('ws://localhost:8000/ws/' + size);
+
+      websocket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+
+        // Clear the grid before adding new cells
+        gridElement.innerHTML = '';
+
+        data.forEach(rowData => {
+          const rowElement = document.createElement('div');
+          rowElement.className = 'row';
+
+          rowData.forEach(cell => {
+            const cellElement = document.createElement('div');
+            cellElement.className = 'cell ' + (cell ? 'alive' : 'dead');
+            rowElement.appendChild(cellElement);
+          });
+
+          gridElement.appendChild(rowElement);
+        });
+
+        // Show the grid by setting opacity to 1
+        gridElement.style.opacity = 1;
+      };
+    });
+  </script>
+</body>
+</html>
