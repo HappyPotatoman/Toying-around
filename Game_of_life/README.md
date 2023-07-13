@@ -4,5 +4,5 @@
 2. Run command: uvicorn main:app --reload
 
 # Build with docker
-docker build -t game-of-life-app .
-docker run -d -p 8000:8000 game-of-life-app
+1. docker build -t game-of-life-app .
+2. docker run -d -p 8000:8000 game-of-life-app
